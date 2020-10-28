@@ -8,3 +8,4 @@
  * ftrace dump and kernel OOPS: oops_ftrace-4.9.236-rt154-00014-g918126d78bde-dump1.txt
  * ftrace dump and kernel OOPS: oops_ftrace-4.9.236-rt154-00014-g918126d78bde-dump2.txt
  * output capture from kgdb session: kgdb_session-4.9.236-rt154-00014-g918126d78bde.txt
+ * .c reproducer for 4.9-rt kernels: fbomb.c
