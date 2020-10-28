@@ -4,6 +4,7 @@
 
 #### 4.9.236-rt154-00014
 
+ * branch: https://github.com/gratian/linux/commits/stable-rt/v4.9-rt-ni-serial
  * boot messages: boot_messages-4.9.236-rt154-00014-g918126d78bde.txt
  * ftrace dump and kernel OOPS: oops_ftrace-4.9.236-rt154-00014-g918126d78bde-dump1.txt
  * ftrace dump and kernel OOPS: oops_ftrace-4.9.236-rt154-00014-g918126d78bde-dump2.txt
