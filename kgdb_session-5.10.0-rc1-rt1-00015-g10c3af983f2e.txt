@@ -1,0 +1,69 @@
+[gratian@kerf linux-github]$ gdb ./vmlinux
+GNU gdb (GDB) 8.3.1
+Copyright (C) 2019 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-pc-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./vmlinux...
+(gdb) set serial baud 115200
+(gdb) show serial
+baud:  Baud rate for remote serial I/O is 115200.
+parity:  Parity for remote serial I/O is "none".
+(gdb) target remote /dev/ttyS2
+Remote debugging using /dev/ttyS2
+kgdb_breakpoint () at kernel/debug/debug_core.c:1224
+1224            wmb(); /* Sync point after breakpoint */
+(gdb) bt
+#0  kgdb_breakpoint () at kernel/debug/debug_core.c:1224
+#1  0xffffffff810f7267 in fixup_pi_state_owner (uaddr=<optimized out>, argowner=argowner@entry=0x0 <fixed_percpu_data>, q=<optimized out>, q=<optimized out>)
+    at kernel/futex.c:2398
+#2  0xffffffff810f737a in fixup_owner (uaddr=<optimized out>, q=<optimized out>, locked=0) at kernel/futex.c:2553
+#3  0xffffffff810f7d71 in futex_wait_requeue_pi (uaddr=uaddr@entry=0x556ff65440e0, flags=flags@entry=0, val=val@entry=4936853, abs_time=<optimized out>,
+    uaddr2=uaddr2@entry=0x556ff65440e4, bitset=4294967295) at kernel/futex.c:3335
+#4  0xffffffff810f8995 in do_futex (uaddr=uaddr@entry=0x556ff65440e0, op=op@entry=139, val=val@entry=4936853, timeout=<optimized out>,
+    uaddr2=0x556ff65440e4, val2=<optimized out>, val3=<optimized out>) at kernel/futex.c:3822
+#5  0xffffffff810f9554 in __do_sys_futex (val3=<optimized out>, uaddr2=<optimized out>, utime=0x7f232c118f30, val=4936853, op=139, uaddr=0x556ff65440e0)
+    at kernel/futex.c:3865
+#6  __se_sys_futex (val3=<optimized out>, uaddr2=<optimized out>, utime=139789039931184, val=4936853, op=139, uaddr=93939362447584) at kernel/futex.c:3831
+#7  __x64_sys_futex (regs=<optimized out>) at kernel/futex.c:3831
+#8  0xffffffff817ae198 in do_syscall_64 (nr=<optimized out>, regs=0xffffc90001727f58) at arch/x86/entry/common.c:46
+#9  0xffffffff8180007c in entry_SYSCALL_64 () at arch/x86/entry/entry_64.S:120
+#10 0x00007f232c1a6040 in ?? ()
+#11 0x0000000000000000 in ?? ()
+(gdb) frame 3
+#3  0xffffffff810f7d71 in futex_wait_requeue_pi (uaddr=uaddr@entry=0x556ff65440e0, flags=flags@entry=0, val=val@entry=4936853, abs_time=<optimized out>,
+    uaddr2=uaddr2@entry=0x556ff65440e4, bitset=4294967295) at kernel/futex.c:3335
+3335                    res = fixup_owner(uaddr2, &q, !ret);
+(gdb) p q
+$1 = {list = {prio = 100, prio_list = {next = 0xffffc90001727d10, prev = 0xffffc90001727d10}, node_list = {next = 0xffffc900017cfd20,
+      prev = 0xffff88801f282538}}, task = 0xffff888009790cc0, lock_ptr = 0xffff88801f282508, key = {shared = {i_seq = 18446612682359213440,
+      pgoff = 93939362447360, offset = 228}, private = {{mm = 0xffff8880113c8d80, __tmp = 18446612682359213440}, address = 93939362447360, offset = 228},
+    both = {ptr = 18446612682359213440, word = 93939362447360, offset = 228}}, pi_state = 0xffff888008f783c0, rt_waiter = 0xffffc90001727cb8,
+  requeue_pi_key = 0xffffc90001727c58, bitset = 4294967295}
+(gdb) p q->pi_state
+$2 = (struct futex_pi_state *) 0xffff888008f783c0
+(gdb) p *(q->pi_state)
+$3 = {list = {next = 0xffff8880097914c8, prev = 0xffff8880097914c8}, pi_mutex = {wait_lock = {raw_lock = {{val = {counter = 1}, {locked = 1 '\001',
+            pending = 0 '\000'}, {locked_pending = 1, tail = 0}}}}, waiters = {rb_root = {rb_node = 0xffffc900017cfcb8}, rb_leftmost = 0xffffc900017cfcb8},
+    owner = 0x1 <fixed_percpu_data+1>, save_state = 0}, owner = 0xffff888009790cc0, refcount = {refs = {counter = 2}}, key = {shared = {
+      i_seq = 18446612682359213440, pgoff = 93939362447360, offset = 228}, private = {{mm = 0xffff8880113c8d80, __tmp = 18446612682359213440},
+      address = 93939362447360, offset = 228}, both = {ptr = 18446612682359213440, word = 93939362447360, offset = 228}}}
+(gdb) p q->pi_state->owner
+$4 = (struct task_struct *) 0xffff888009790cc0
+(gdb) p q->pi_state->owner->comm
+$5 = "f_waiter\000tty\000\000\000"
+(gdb) p q->pi_state->pi_mutex->ownser
+There is no member named ownser.
+(gdb) p q->pi_state->pi_mutex->owner
+$6 = (struct task_struct *) 0x1 <fixed_percpu_data+1>
+(gdb)
